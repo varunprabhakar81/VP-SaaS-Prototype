@@ -1,0 +1,97 @@
+<div class  "page-header" > 
+
+<h1>Create Invoice</h1>
+
+</div>
+
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  </head>
+
+
+<form ng-submit = "invoice.createInvoice(invoiceData)">
+	<!-- Member -->
+	<label>Member:</label>
+	<input class="form-control" type="text" name="member" placeholder="please enter member" ng-model="invoice.invoiceData.member">
+	<br>
+
+	<!-- Invoice Date -->
+	<label>Date:</label>
+	<input class="form-control" type="date" name="invoiceDate" placeholder="please enter invoice date" ng-model="invoice.invoiceData.invoicedate">
+	<br>
+
+	<!-- Due Date -->
+	<label>Due Date:</label>
+	<input class="form-control" type="date" name="invoiceDueDate" placeholder="please enter invoide due date" ng-model="invoice.invoiceData.invoiceduedate">
+	<br>
+
+		<!-- Chapter -->
+	<label>Chapter:</label>
+	<input class="form-control" type="text" name="chapter" placeholder="please select chapter" ng-model="invoice.invoiceData.chapter">
+	<br>
+
+
+<table class="line-items editable table table-bordered">
+
+    <thead class="panel-heading">
+        <tr class="panel-heading">
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Rate</th>
+            <th>Amount</th>
+            <th>Subtotal</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tfoot>
+        <tr>
+            <th><input class="form-control input-sm" id="item" name="item" type="text"></th>
+            <th><input class="form-control input-sm" id="quantity" name="quantity" type="number"></input></th>
+            <th><input class="form-control input-sm" id="rate" name="rate" type="number"></th>
+            <th><input class="form-control input-sm" id="amount" name="amount" type="number"></th>
+            <th><input class="form-control input-sm" id="subtotal_input" name="subtotal_input" disabled="disabled" type="text"></th>
+            <th><button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-plus"></span> Add Line Item</button></th>
+      </p> 
+        </tr>
+        <tr>
+            <th colspan="9">
+                <div class="row">
+                    <div class="col-sm-6 order-number"></div>
+                    <div class="col-sm-6 text-right order-total">Total: $0.00</div>
+                </div>
+            </th>
+        </tr>
+    </tfoot>
+
+    <tbody>
+    </tbody>
+</table>
+
+
+<button class="btn btn-primary" type="submit">Create Invoice</button>
+</form>
+
+<br>
+
+<div class = "jumbotron text-center" ng-show="invoice.loading">
+	<span class = "glymphicon glymphicon-repeat spinner"></span>
+	<p>Loading...</p>
+
+</div>
+<br>
+
+<div class="row show-hide-message" ng-show="invoice.successMsg">
+	<div class="alert alert-success">{{invoice.successMsg}}</div>
+</div>
+	
+	<br>
+
+<div class="row show-hide-message" ng-show="invoice.errorMsg">
+	<div class="alert alert-danger">{{invoice.errorMsg}}</div>
+</div>
+
+

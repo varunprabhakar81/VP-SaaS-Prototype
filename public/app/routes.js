@@ -29,6 +29,20 @@ var app = angular.module('appRoutes',['ngRoute'])
 		authenticated: true
 	})
 
+
+	.when('/invoice', {
+		templateUrl: 'app/views/pages/transactions/invoice.html',
+		controller: 'invoiceCtrl',
+		controllerAs: 'invoice',
+		authenticated: true		
+	})
+
+	.when('/invoice_second', {
+		templateUrl: 'app/views/pages/transactions/invoice_second.html',
+		controller: 'ListController',
+		authenticated: true		
+	})
+
 	.when('/profile', {
 		templateUrl: 'app/views/pages/users/profile.html',
 		authenticated: true

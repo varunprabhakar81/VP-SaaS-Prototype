@@ -1,4 +1,6 @@
 var User = require('../models/user');
+var Invoice = require('../models/invoice');
+var InvoiceLines = require('../models/invoice-lines');
 var jwt = require('jsonwebtoken');
 var secret = 'harryporter';
 
@@ -22,6 +24,65 @@ module.exports = function(router) {
 					res.json({success: false, message: 'Username or Email already exists!'});
 				} else {
 					res.json({success: true, message: 'User Created!'});
+				}
+			});
+		}
+	});
+
+
+	//http://localhost:port/api/invoice
+	//INVOICE CREATION ROUTE
+	router.post('/invoice',(req, res) => {
+		var invoice = new Invoice();
+		invoice.member = req.body.member;
+		invoice.invoicedate = req.body.invoicedate;
+		invoice.invoiceduedate = req.body.invoiceduedate;
+		invoice.chapter = req.body.chapter;
+		invoice.totalamountdue = req.body.totalamountdue;
+
+
+		if(req.body.member == null || req.body.member == ''
+		   || req.body.invoicedate == null || req.body.invoicedate == ''
+			|| req.body.invoiceduedate == null || req.body.invoiceduedate == ''
+			|| req.body.chapter == null || req.body.chapter == ''
+			|| req.body.totalamountdue == null || req.body.totalamountdue == ''
+			 ){
+			res.json({success: false, message:'Ensure Invoice primary data is provided'})
+		}
+		else { 
+			invoice.save(function(err){
+				if(err) {
+					res.json({success: false, message: 'Failure occured!'+err});
+				} else {
+					res.json({success: true, message: 'Invoice Created!'});
+				}
+			});
+		}
+	});
+
+
+	//http://localhost:port/api/invoice-lines
+	//INVOICE CREATION ROUTE
+	router.post('/invoice-lines',(req, res) => {
+		var invoice_lines = new InvoiceLines();
+		invoice_lines.item = req.body.item;
+		invoice_lines.quantity = req.body.quantity;
+		invoice_lines.rate = req.body.rate;
+		invoice_lines.amount = req.body.amount;
+
+		if(req.body.item == null || req.body.item == ''
+		   || req.body.quantity == null || req.body.quantity == ''
+			|| req.body.rate == null || req.body.rate == ''
+			|| req.body.amount == null || req.body.amount == ''
+			 ){
+			res.json({success: false, message:'Ensure all mandatory invoice line items are provided!'})
+		}
+		else { 
+			invoice_lines.save(function(err){
+				if(err) {
+					res.json({success: false, message: 'Failure occured!'+err});
+				} else {
+					res.json({success: true, message: 'Invoice Lines Created!'});
 				}
 			});
 		}
