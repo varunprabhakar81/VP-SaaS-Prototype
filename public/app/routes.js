@@ -90,6 +90,47 @@ var app = angular.module('appRoutes',['ngRoute'])
 		authenticated: false
 	})
 
+	.when('/facebook/inactive/error', {
+		templateUrl: 'app/views/pages/users/login.html',
+		controller: 'facebookCtrl',
+		controllerAs: 'facebook',
+		authenticated: false
+	})
+
+	.when('/google/inactive/error', {
+		templateUrl: 'app/views/pages/users/login.html',
+		controller: 'googleCtrl',
+		controllerAs: 'google',
+		authenticated: false
+	})
+
+	.when('/twitter/inactive/error', {
+		templateUrl: 'app/views/pages/users/login.html',
+		controller: 'twitterCtrl',
+		controllerAs: 'twitter',
+		authenticated: false
+	})
+
+	.when('/activate/:token', {
+		templateUrl: 'app/views/pages/users/activation/activate.html',
+		controller: 'emailCtrl',
+		controllerAs: 'email'
+	})
+
+	.when('/resend', {
+		templateUrl: 'app/views/pages/users/activation/resend.html',
+		controller: 'resendCtrl',
+		controllerAs: 'resend'
+	})
+
+    // Route: Send Username to E-mail
+    .when('/resetusername', {
+        templateUrl: 'app/views/pages/users/reset/username.html',
+        controller: 'usernameCtrl',
+        controllerAs: 'username',
+        authenticated: false
+    })
+
 	.otherwise({ redirectTo: '/'});
 
 	$locationProvider.html5Mode({
