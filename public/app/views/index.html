@@ -28,6 +28,7 @@
   <script src="app/controllers/userCtrl.js"></script>
   <script src="app/controllers/mainCtrl.js"></script>
   <script src="app/controllers/emailCtrl.js"></script>
+  <script src="app/controllers/managementCtrl.js"></script>
 
   <!-- Angular Services -->
   <script src="app/services/userServices.js"></script>
@@ -58,6 +59,9 @@
         <li><a class="nav-link active" ng-show="!main.isLoggedIn" href="/register">Register<span class="sr-only">(current)</span></a></li>
         <li class="nav-item active">
           <a class="nav-link" ng-show="main.isLoggedIn" href="#" ng-click="main.logout()">Logout <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" ng-show="main.isLoggedIn && main.authorized" href="/management">Management<span class="sr-only">(current)</span></a>
         </li>
 
 
@@ -103,11 +107,39 @@
 
   <!-- Main jumbotron for a primary marketing message or call to action -->
   <div class="jumbotron">
-<!--     <h1>Theme example</h1>
-    <p>This is a template showcasing the optional theme stylesheet included in Bootstrap. Use it as a starting point to create something more unique by building on or modifying it.</p> -->
+    <h1>Theme example</h1>
+    <p>This is a template showcasing the optional theme stylesheet included in Bootstrap. Use it as a starting point to create something more unique by building on or modifying it.</p>
   </div>
 
   <div ng-view></div>
+
+    <!-- BootstrapJS Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button ng-hide="main.hideButton" type="button" ng-click="main.endSession();" class="close" data-dismiss="modal">&times;</button>
+            <!-- Modal Header -->
+            <h4 class="modal-title">{{ main.modalHeader }}</h4>
+          </div>
+          <!-- Modal Body -->
+          <div class="modal-body">
+            <p>{{ main.modalBody }}</p>
+            <div ng-show="main.hideButton" class="dizzy-gillespie"></div>
+          </div>
+          <div class="modal-footer">
+            <!-- Modal 'Yes' & 'No' Buttons -->
+            <button type="button" ng-hide="main.hideButton" ng-click="main.renewSession();" class="btn btn-primary" data-dismiss="modal">Yes</button>
+            <button type="button" ng-hide="main.hideButton" ng-click="main.endSession();" class="btn btn-danger" data-dismiss="modal">No</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- BootstrapJS Modal -->
+    
 
 </div> <!-- /container -->
 

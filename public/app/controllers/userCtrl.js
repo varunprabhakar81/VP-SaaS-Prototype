@@ -18,15 +18,15 @@ angular.module('userControllers', ['userServices'])
 				app.loading = false;
 				//Create Success Message
 				app.successMsg = data.data.message+'...Redirecting';
-				// //Redirect to Home Message
-				// $timeout(function(){
-				// 	$location.path('/');
-				// },1500);
+				//Redirect to Home Message
+				$timeout(function(){
+					$location.path('/');
+				},2000);
 				
 			}else {
 				app.disabled = false;
 				app.loading = false;
-				//Create Errpr Message
+				//Create Error Message
 				app.errorMsg = data.data.message;
 			}
 		});

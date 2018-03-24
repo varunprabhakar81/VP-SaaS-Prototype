@@ -327,24 +327,118 @@ module.exports = function(router) {
 			if (err) {
 				res.json({ success: false, message: err }); // Error if cannot connect
 			} else {
-				if (!user) {
-					res.json({ success: false, message: 'E-mail was not found' }); // Return error if e-mail cannot be found in database
-				} else {
-					// If e-mail found in database, create e-mail object
-					var email = {
-						from: 'DigitalCloud ERP Support, support@digitalclouderp.com',
-						to: user.email,
-						subject: 'DigitalCloud ERP Username Request',
-						text: 'Hello ' + user.name + ', You recently requested your username. Please save it in your files: ' + user.username,
-						html: 'Hello<strong> ' + user.name + '</strong>,<br><br>You recently requested your username. Please save it in your files: ' + user.username
-					};
-
-					// Function to send e-mail to user
-					client.sendMail(email, function(err, info) {
-						if (err) console.log(err); // If error in sending e-mail, log to console/terminal
-					});
-					res.json({ success: true, message: 'Username has been sent to e-mail! ' }); // Return success message once e-mail has been sent
+				if(!req.params.email) {
+					res.json({ success: false, message: 'No e-mail was provided' }); 
 				}
+				else {
+					if (!user) {
+					res.json({ success: false, message: 'E-mail was not found' }); // Return error if e-mail cannot be found in database
+					} else {
+						// If e-mail found in database, create e-mail object
+						var email = {
+							from: 'DigitalCloud ERP Support, support@digitalclouderp.com',
+							to: user.email,
+							subject: 'DigitalCloud ERP Username Request',
+							text: 'Hello ' + user.name + ', You recently requested your username. Please save it in your files: ' + user.username,
+							html: 'Hello<strong> ' + user.name + '</strong>,<br><br>You recently requested your username. Please save it in your files: ' + user.username
+						};
+						// Function to send e-mail to user
+						client.sendMail(email, function(err, info) {
+							if (err) console.log(err); // If error in sending e-mail, log to console/terminal
+						});
+						res.json({ success: true, message: 'Username has been sent to e-mail! ' }); // Return success message once e-mail has been sent
+					}
+				}
+			}
+		});
+	});
+
+
+	// Route to send reset link to the user
+	router.put('/resetpassword', function(req, res) {
+		console.log('before  db error');
+		User.findOne({ username: req.body.username }).select('username active email resettoken name').exec(function(err, user) {
+			if (err) throw err; // Throw error if cannot connect
+			if (!user) {
+				res.json({ success: false, message: 'Username was not found' }); // Return error if username is not found in database
+			} else if (!user.active) {
+				res.json({ success: false, message: 'Account has not yet been activated' }); // Return error if account is not yet activated
+			} else {
+				user.resettoken = jwt.sign({ username: user.username, email: user.email }, secret, { expiresIn: '24h' }); // Create a token for activating account through e-mail
+				// Save token to user in database
+				user.save(function(err) {
+					if (err) {
+						res.json({ success: false, message: err }); // Return error if cannot connect
+					} else {
+						// Create e-mail object to send to user
+						var email = {
+							from: 'DigitalCloud ERP Support, support@digitalclouderp.com',
+							to: user.email,
+							subject: 'DigitalCloud ERP Reset Password Request',
+							text: 'Hello ' + user.name + ', You recently request a password reset link. Please click on the link below to reset your password:<br><br><a href="http://localhost:8080/reset/' + user.resettoken,
+							html: 'Hello<strong> ' + user.name + '</strong>,<br><br>You recently request a password reset link. Please click on the link below to reset your password:<br><br><a href="http://localhost:8080/reset/' + user.resettoken + '">http://localhost:8080/reset/</a>'
+						};
+						// Function to send e-mail to the user
+						client.sendMail(email, function(err, info) {
+							if (err) console.log(err); // If error with sending e-mail, log to console/terminal
+						});
+						res.json({ success: true, message: 'Please check your e-mail for password reset link' }); // Return success message
+					}
+				});
+			}
+		});
+	});
+
+	// Route to verify user's e-mail activation link
+	router.get('/resetpassword/:token', function(req, res) {
+		User.findOne({ resettoken: req.params.token }).select().exec(function(err, user) {
+			if (err) throw err; // Throw err if cannot connect
+			var token = req.params.token; // Save user's token from parameters to variable
+			console.log(token);
+			// Function to verify token
+			jwt.verify(token, secret, function(err, decoded) {
+				if (err) {
+					res.json({ success: false, message: 'Password link has expired' }); // Token has expired or is invalid
+				} else {
+					if (!user) {
+						res.json({ success: false, message: 'Password link has expired' }); // Token is valid but not no user has that token anymore
+					} else {
+						res.json({ success: true, user: user }); // Return user object to controller
+					}
+				}
+			});
+		});
+	});
+
+	// Save user's new password to database
+	router.put('/savepassword', function(req, res) {
+		User.findOne({ username: req.body.username }).select('username email name password resettoken').exec(function(err, user) {
+			if (err) throw err; // Throw error if cannot connect
+			if (req.body.password == null || req.body.password == '') {
+				res.json({ success: false, message: 'Password not provided' });
+			} else {
+				user.password = req.body.password; // Save user's new password to the user object
+				user.resettoken = false; // Clear user's resettoken 
+				// Save user's new data
+				user.save(function(err) {
+					if (err) {
+						res.json({ success: false, message: err });
+					} else {
+						// Create e-mail object to send to user
+						var email = {
+							from: 'DigitalCloud ERP Support, support@digitalclouderp.com',
+							to: user.email,
+							subject: 'DigitalCloud ERP Reset Password',
+							text: 'Hello ' + user.name + ', This e-mail is to notify you that your password was recently reset at digitalclouderp.com',
+							html: 'Hello<strong> ' + user.name + '</strong>,<br><br>This e-mail is to notify you that your password was recently reset at digitalclouderp.com'
+						};
+						// Function to send e-mail to the user
+						client.sendMail(email, function(err, info) {
+							if (err) console.log(err); // If error with sending e-mail, log to console/terminal
+						});
+						res.json({ success: true, message: 'Password has been reset!' }); // Return success message
+					}
+				});
 			}
 		});
 	});
@@ -370,6 +464,57 @@ module.exports = function(router) {
 
 	router.post('/me', function(req, res) {
 		res.send(req.decoded);
+	});
+
+
+	// Route to provide the user with a new token to renew session
+	router.get('/renewToken/:username', function(req, res) {
+		User.findOne({ username: req.params.username }).select('username email').exec(function(err, user) {
+			if (err) throw err; // Throw error if cannot connect
+			// Check if username was found in database
+			if (!user) {
+				res.json({ success: false, message: 'No user was found' }); // Return error
+			} else {
+				var newToken = jwt.sign({ username: user.username, email: user.email }, secret, { expiresIn: '24h' }); // Give user a new token
+				res.json({ success: true, token: newToken }); // Return newToken in JSON object to controller
+			}
+		});
+	});
+
+	router.get('/permission/', function(req, res) {
+		User.findOne({ username: req.decoded.username }, function(err, user) {
+			if (err) throw err; // Throw error if cannot connect
+			// Check if username was found in database
+			if (!user) {
+				res.json({ success: false, message: 'No user was found' }); // Return error
+			} else {
+				res.json({ success: true, permission: user.permission }); // Return newToken in JSON object to controller
+			}
+		});
+	});
+
+	router.get('/management/', function(req, res) {
+		User.find({}, function(err, users) {
+			if (err) throw err; // Throw error if cannot connect
+
+			User.findOne({ username: req.decoded.username }, function(err, mainUser) {
+				if (err) throw err;
+				if(!mainUser) {
+					res.json({success: false, message: 'No user found'});
+				} else {
+					if (mainUser.permission === 'admin' || mainUser.permission == 'moderator') {
+						if(!users) {
+							res.json({success: false, message: 'Users not found'});
+						} else {
+							res.json({success: true, users: users, permission: mainUser.permission});
+				
+						}
+					} else {
+						res.json({success: false, message: 'Insufficient Permissions'});
+					}
+				}
+			});
+		});
 	});
 
 	return router;

@@ -32,11 +32,39 @@ angular.module('userServices', [])
 		return $http.put('/api/resend', username);
 	}
 
-	// Send user's username to e-mail
 	//User.sendUsername(userData);
 	userFactory.sendUsername = function(userData) {
-		return $http.get('/resetusername/'+userData);
+		return $http.get('/api/resetusername/'+ userData);
 	}
+
+	// Send password reset link to user's e-mail
+	//User.sendPassword(resetData);
+	userFactory.sendPassword = function(resetData) {
+		return $http.put('/api/resetpassword',resetData);
+	}
+
+	//User.resetUser(token);
+	userFactory.resetUser = function(token) {
+		return $http.get('/api/resetpassword/'+token);
+	}
+
+    // Save user's new password
+    userFactory.savePassword = function(regData) {
+        return $http.put('/api/savepassword', regData)
+    }
+
+    // Provide the user with a new token
+    userFactory.renewSession = function(username) {
+        return $http.get('/api/renewToken/' + username);
+    };
+
+    userFactory.getPermission = function() {
+        return $http.get('/api/permission/');
+    };
+
+    userFactory.getUsers = function() {
+        return $http.get('/api/management/');
+    };
 
 	return userFactory;
 })
