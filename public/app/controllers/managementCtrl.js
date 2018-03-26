@@ -1,7 +1,7 @@
 angular.module('managementController', [])
 
 // Controller: User to control the management page and managing of user accounts
-.controller('managementCtrl', function(User) {
+.controller('managementCtrl', function(User, $scope) {
     var app = this;
 
     app.loading = true; // Start loading icon on page load
@@ -10,6 +10,7 @@ angular.module('managementController', [])
     app.editAccess = false; // Clear access on load
     app.deleteAccess = false; // CLear access on load
     app.limit = 5; // Set a default limit to ng-repeat
+    app.searchLimit = 0; // Set the default search page results limit to zero
 
     // Function: get all the users from database
     function getUsers() {
@@ -71,6 +72,57 @@ angular.module('managementController', [])
                 app.showMoreError = data.data.message; // Set error message
             }
         });
+    };
+
+    // Function: Perform a basic search function
+    app.search = function(searchKeyword, number) {
+        // Check if a search keyword was provided
+        if (searchKeyword) {
+            // Check if the search keyword actually exists
+            if (searchKeyword.length > 0) {
+                app.limit = 0; // Reset the limit number while processing
+                $scope.searchFilter = searchKeyword; // Set the search filter to the word provided by the user
+                app.limit = number; // Set the number displayed to the number entered by the user
+            } else {
+                $scope.searchFilter = undefined; // Remove any keywords from filter
+                app.limit = 0; // Reset search limit
+            }
+        } else {
+            $scope.searchFilter = undefined; // Reset search limit
+            app.limit = 0; // Set search limit to zero
+        }
+    };
+
+    // Function: Clear all fields
+    app.clear = function() {
+        $scope.number = 'Clear'; // Set the filter box to 'Clear'
+        app.limit = 0; // Clear all results
+        $scope.searchKeyword = undefined; // Clear the search word
+        $scope.searchFilter = undefined; // Clear the search filter
+        app.showMoreError = false; // Clear any errors
+    };
+
+    // Function: Perform an advanced, criteria-based search
+    app.advancedSearch = function(searchByUsername, searchByEmail, searchByName) {
+        // Ensure only to perform advanced search if one of the fields was submitted
+        if (searchByUsername || searchByEmail || searchByName) {
+            $scope.advancedSearchFilter = {}; // Create the filter object
+            if (searchByUsername) {
+                $scope.advancedSearchFilter.username = searchByUsername; // If username keyword was provided, search by username
+            }
+            if (searchByEmail) {
+                $scope.advancedSearchFilter.email = searchByEmail; // If email keyword was provided, search by email
+            }
+            if (searchByName) {
+                $scope.advancedSearchFilter.name = searchByName; // If name keyword was provided, search by name
+            }
+            app.searchLimit = undefined; // Clear limit on search results
+        }
+    };
+
+    // Function: Set sort order of results
+    app.sortOrder = function(order) {
+        app.sort = order; // Assign sort order variable requested by user
     };
 })
 
