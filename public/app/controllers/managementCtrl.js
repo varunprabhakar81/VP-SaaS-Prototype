@@ -9,8 +9,8 @@ angular.module('managementController', [])
     app.errorMsg = false; // Clear any error messages
     app.editAccess = false; // Clear access on load
     app.deleteAccess = false; // CLear access on load
-    app.limit = 5; // Set a default limit to ng-repeat
-    app.searchLimit = 0; // Set the default search page results limit to zero
+    app.limit = 20; // Set a default limit to ng-repeat
+    app.searchLimit = undefined; // Set the default search page results limit to zero
 
     // Function: get all the users from database
     function getUsers() {
@@ -89,17 +89,21 @@ angular.module('managementController', [])
             }
         } else {
             $scope.searchFilter = undefined; // Reset search limit
-            app.limit = 0; // Set search limit to zero
+            app.limit = undefined; // Set search limit to zero
         }
     };
 
     // Function: Clear all fields
     app.clear = function() {
-        $scope.number = 'Clear'; // Set the filter box to 'Clear'
-        app.limit = 0; // Clear all results
+        $scope.number = undefined; // Set the filter box to 'Clear'
+        app.limit = undefined; // Clear all results
         $scope.searchKeyword = undefined; // Clear the search word
         $scope.searchFilter = undefined; // Clear the search filter
         app.showMoreError = false; // Clear any errors
+        $scope.advancedSearchFilter = {};
+        $scope.searchByUsername = undefined;
+        $scope.searchByEmail = undefined;
+        $scope.searchByName = undefined;
     };
 
     // Function: Perform an advanced, criteria-based search
@@ -117,6 +121,9 @@ angular.module('managementController', [])
                 $scope.advancedSearchFilter.name = searchByName; // If name keyword was provided, search by name
             }
             app.searchLimit = undefined; // Clear limit on search results
+        } else {
+            app.searchLimit = undefined; // Clear limit on search results
+            $scope.advancedSearchFilter = {};
         }
     };
 
